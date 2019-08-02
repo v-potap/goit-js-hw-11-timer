@@ -32,9 +32,14 @@ export default class CountdownTimer {
       }
     }
 
+    if (Date.parse(targetDate) < Date.parse(new Date())) {
+      throw new Error(`Invalid target date provided (expired): ${targetDate}`);
+    }
+
     this.targetDate = Date.parse(targetDate);
     this.timerID = 0;
     this.timer = this.getTimer();
+    this.isCounting = false;
   }
 
   getTimer() {
@@ -58,10 +63,13 @@ export default class CountdownTimer {
     this.timerID = setInterval(() => {
       this.applyTimer();
     }, 900);
+
+    this.isCounting = true;
   }
 
   stop() {
     clearInterval(this.timerID);
+    this.isCounting = false;
   }
 
   applyTimer() {
@@ -70,7 +78,7 @@ export default class CountdownTimer {
     for (const key of Object.keys(timer)) {
       switch (key) {
         case 'days':
-            this.htmlMarkupRefs.spanDays.textContent = timer.days;
+          this.htmlMarkupRefs.spanDays.textContent = timer.days;
           // while (
           //   timer.days.length !==
           //   this.htmlMarkupRefs.spanDays.querySelectorAll('span').length
@@ -98,5 +106,16 @@ export default class CountdownTimer {
           break;
       }
     }
+  }
+
+  isCounting() {
+    return this.isCounting;
+  }
+
+  setTargetDate(targetDate) {
+    if (this.isCounting) {
+      return;
+    }
+    this.targetDate = Date.parse(targetDate);
   }
 }
