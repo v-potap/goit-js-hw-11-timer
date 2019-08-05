@@ -1,5 +1,5 @@
-'use strict';
 import htmlPattern from './timerHTML.js';
+// import './timer.css';
 
 export default class CountdownTimer {
   constructor({ selector, targetDate }) {
@@ -7,22 +7,27 @@ export default class CountdownTimer {
     // this.divTimer = document.getElementById(this.selector.slice(1));
     this.htmlMarkupRefs = {
       divTimer: document.getElementById(this.selector.slice(1)),
-      spanDays: document
+      days: document
         .getElementById(this.selector.slice(1))
         .querySelector('span[data-value="days"]'),
-      spanDays: document
-        .getElementById(this.selector.slice(1))
-        .querySelector('span[data-value="days"]'),
-      spanHours: document
+      hours: document
         .getElementById(this.selector.slice(1))
         .querySelector('span[data-value="hours"]'),
-      spanMins: document
+      mins: document
         .getElementById(this.selector.slice(1))
         .querySelector('span[data-value="mins"]'),
-      spanSecs: document
+      secs: document
         .getElementById(this.selector.slice(1))
         .querySelector('span[data-value="secs"]'),
     };
+
+    // this.css = {
+    //   divTimer: 'flip-clock',
+    //   spanDays: ,
+    //   spanHours: ,
+    //   spanMins: ,
+    //   spanSecs: ,
+    // }
 
     for (const ref in this.htmlMarkupRefs) {
       if (this.htmlMarkupRefs[ref] === null) {
@@ -32,11 +37,57 @@ export default class CountdownTimer {
       }
     }
 
+    const applyTimerStyles = new Promise(resolve => {
+      this.htmlMarkupRefs.divTimer.style.display = 'flex';
+      this.htmlMarkupRefs.divTimer.style.justifyContent = 'space-between';
+      this.htmlMarkupRefs.divTimer.style.width = '80vw';
+      this.htmlMarkupRefs.divTimer.style.margin = '5vh auto';
+      this.htmlMarkupRefs.divTimer.style.height = '20vh';
+      this.htmlMarkupRefs.divTimer.style.border = 'solid';
+      this.htmlMarkupRefs.divTimer.style.borderRadius = '2vh';
+
+      for (const ref of this.htmlMarkupRefs.divTimer.children) {
+        ref.style.display = 'flex';
+        ref.style.flexDirection = 'column';
+        ref.style.justifyContent = 'center';
+        ref.style.alignItems = 'center';
+        ref.style.height = 'auto';
+        ref.style.flex = '0 1 15vh';
+        ref.style.margin = '1vh 1vw';
+        ref.style.border = 'solid';
+        ref.style.borderRadius = '2vh';
+
+        for (const span of ref.children) {
+          if (span.classList.contains('value')) {
+            span.style.display = 'flex';
+            span.style.justifyContent = 'space-around';
+            span.style.minHeight = '5vh';
+            span.style.flex = '1 1 5vw';
+            span.style.margin = '1vh 1vw';
+            span.style.border = '0.25vh solid';
+            span.style.borderRadius = '2vh';
+            span.style.fontSize = '8vh';
+            span.style.fontWeight = 'bold';
+          } else if (span.classList.contains('label')) {
+            span.style.display = 'block';
+            span.style.margin = '1vh 1vw';
+            span.style.maxHeight = '4vh';
+          }
+        }
+      }
+    });
+
     if (Date.parse(targetDate) < Date.parse(new Date())) {
       throw new Error(`Invalid target date provided (expired): ${targetDate}`);
     }
 
     this.targetDate = Date.parse(targetDate);
+    this.targetYear = targetDate.getFullYear();
+    this.targetMonth = targetDate.getMonth() + 1;
+    this.targetDay = targetDate.getDate();
+    this.targetHours = targetDate.getHours();
+    this.targeMins = targetDate.getMinutes();
+    this.targetSecs = targetDate.getSeconds();
     this.timerID = 0;
     this.timer = this.getTimer();
     this.isCounting = false;
@@ -56,13 +107,21 @@ export default class CountdownTimer {
       '0',
     );
 
-    return { time, days, hours, mins, secs };
+    if (time >= 0) {
+      return {
+        // time,
+        days,
+        hours,
+        mins,
+        secs,
+      };
+    }
   }
 
   start() {
     this.timerID = setInterval(() => {
       this.applyTimer();
-    }, 900);
+    }, 1000);
 
     this.isCounting = true;
   }
@@ -74,38 +133,54 @@ export default class CountdownTimer {
 
   applyTimer() {
     const timer = this.getTimer();
-    console.log(timer);
+    if (!timer) {
+      this.stop();
+      return;
+    }
+
     for (const key of Object.keys(timer)) {
-      switch (key) {
-        case 'days':
-          this.htmlMarkupRefs.spanDays.textContent = timer.days;
-          // while (
-          //   timer.days.length !==
-          //   this.htmlMarkupRefs.spanDays.querySelectorAll('span').length
-          // ) {
-          //   if (
-          //     timer.days.length >
-          //     this.htmlMarkupRefs.spanDays.querySelectorAll('span').length
-          //   ) {
-          //     const newDigit = this.htmlMarkupRefs.spanDays.appendChild('span');
-          //     newDigit.classList.add = 'digit';
-          //   }
-          // }
-          // [...timer.days].forEach(() => {});
-          break;
-        case 'hours':
-          this.htmlMarkupRefs.spanHours.textContent = timer.hours;
-          break;
-        case 'mins':
-          this.htmlMarkupRefs.spanMins.textContent = timer.mins;
-          break;
-        case 'secs':
-          this.htmlMarkupRefs.spanSecs.textContent = timer.secs;
-          break;
-        default:
-          break;
+      if (!this.htmlMarkupRefs[key].hasAttribute('data-value')) {
+        this.htmlMarkupRefs[key].setAttribute('data-value', timer[key]);
+      } else if (
+        this.htmlMarkupRefs[key].getAttribute('data-value') !== timer[key]
+      ) {
+        this.applySlot(this.htmlMarkupRefs[key], [...timer[key]]);
       }
     }
+  }
+
+  applySlot(domRef, digits) {
+    domRef.setAttribute('data-value', digits.join(''));
+
+    while (digits.length > domRef.children.length) {
+      const digit = domRef.appendChild(document.createElement('span'));
+    }
+
+    while (digits.length < domRef.children.length) {
+      domRef.removeChild(domRef.childNodes[0]);
+    }
+
+    digits.forEach((e, i, a) => {
+      if (!domRef.children[i].hasAttribute('data-value')) {
+        domRef.children[i].setAttribute('data-value', e);
+      } else if (domRef.children[i].getAttribute('data-value') !== e) {
+        domRef.children[i].setAttribute('data-value', e);
+      }
+
+      domRef.children[i].textContent = domRef.children[i].getAttribute(
+        'data-value',
+      );
+
+      domRef.children[i].style.background = 'darkgrey';
+      domRef.children[i].style.color = 'grey';
+      domRef.children[i].style.width = '6vw';
+      domRef.children[i].style.borderRadius = '3vh';
+      domRef.children[i].style.textAlign = 'center';
+      domRef.children[i].style.margin = '1vh 0.25vw';
+
+      domRef.style.width = `${a.length * 7}vw`;
+      this.htmlMarkupRefs.divTimer.style.width = '90vw';
+    });
   }
 
   isCounting() {
@@ -117,5 +192,20 @@ export default class CountdownTimer {
       return;
     }
     this.targetDate = Date.parse(targetDate);
+  }
+
+  getTargetDate() {
+    return this.targetDate;
+  }
+
+  getTargetDateDefault() {
+    return (
+      `${this.targetYear}-` +
+      `${(this.targetMonth + '').padStart(2, '0')}-` +
+      `${(this.targetDay + '').padStart(2, '0')}T` +
+      `${(this.targetHours + '').padStart(2, '0')}:` +
+      `${(this.targeMins + '').padStart(2, '0')}:` +
+      `${(this.targetSecs + '').padStart(2, '0')}`
+    );
   }
 }

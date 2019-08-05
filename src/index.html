@@ -5,8 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
     <title>HW-JS-11: TIMER</title>
+    <!-- <link rel="stylesheet" href="./timer.css"> -->
   </head>
   <body>
+    <form action="#" class="steer-timer">
+      <input type="datetime-local" name="target-date" id="target-date" />
+      <button type="submit" data-action="start">Start</button>
+      <button type="submit" data-action="stop" disabled="true">Stop</button>
+    </form>
+
     <div class="timer" id="timer-1">
       <div class="field">
         <span class="value" data-value="days"></span>
@@ -29,13 +36,6 @@
       </div>
     </div>
 
-<form action="#" class="steer-timer">
-  <input type="datetime-local" name="target-date" id="target-date">
-    <button type="submit" name="start" data-action="start" value="start">Start</button>
-    <button type="submit" name="stop" data-action="stop" value="stop" disabled="true">Stop</button>
-    <button type="submit" name="pause" data-action="pause" value="pause" disabled="true">Pause</button>
-  </form>
-
-    <script src="./index.js" type="module"></script>
+    <!-- <script src="./index.js" type="module"></script> -->
   </body>
 </html>
