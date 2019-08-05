@@ -14,10 +14,10 @@
     "url": "git+https://github.com/v-potap/goit-js-hw-11-timer.git"
   },
   "keywords": [],
-  "author": "Alexander Repeta <alexander.repeta@gmail.com>",
+  "author": "v-potap <vlarus@ukr.net>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/v-potap/goit-js-hw-11-timer/issues"
+    "url": "https://github.com/luxplanjay/webpack-starter-kit/issues"
   },
   "homepage": "https://github.com/v-potap/goit-js-hw-11-timer#readme",
   "devDependencies": {

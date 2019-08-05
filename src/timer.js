@@ -1,4 +1,4 @@
-import htmlPattern from './timerHTML';
+import htmlPattern from './timerHTML.js';
 
 export default class CountdownTimer {
   constructor({ selector, targetDate }) {

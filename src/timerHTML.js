@@ -20,4 +20,4 @@ export default `
     <span class="label">Seconds</span>
   </div>
 </div>
-`;
+`
